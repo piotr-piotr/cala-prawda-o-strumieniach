@@ -16,16 +16,10 @@ public class Glowna {
 //        System.out.println(suma);
         */
 
-        RecursiveAction[] akcje = new RecursiveAction[100];
-        for (int i = 0; i < 100; i++) {
-            akcje[i] = new MojaAkcja(10 * i, 10 * (i + 1));
-            System.out.println("    ---- puszczam");
-            ForkJoinPool.commonPool().execute(akcje[i]);
-        }
-        System.out.println("Poszło!" + " - " + Thread.currentThread().getId());
-        for (int i = 0; i < 100; i++) {
-            akcje[i].join();
-        }
+        MojaAkcjaRekurencyjna akcja = new MojaAkcjaRekurencyjna(0, 1000);
+//        ForkJoinPool.commonPool().execute(akcja);
+//        akcja.join();
+        akcja.invoke();
     }
 
     private static void forEach(Iterator<Zamowienie> zamówienia, Consumer<Zamowienie> konsumer) {
