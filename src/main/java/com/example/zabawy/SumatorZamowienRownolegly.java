@@ -1,39 +1,32 @@
 package com.example.zabawy;
 
-import com.example.zabawy.helpery.HelperDoSumyKontrolnej;
-
+import java.util.Spliterator;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.RecursiveAction;
 import java.util.concurrent.RecursiveTask;
 
 public class SumatorZamowienRownolegly extends RecursiveTask<Integer> {
-    private final int odIlu;
-    private final int doIlu;
-    private final Zamowienie[] zamówienia;
+    private final Spliterator<Zamowienie> zamówienia;
 
-    public SumatorZamowienRownolegly(Zamowienie[] zamówienia, int odIlu, int doIlu) {
-        this.odIlu = odIlu;
-        this.doIlu = doIlu;
+    public SumatorZamowienRownolegly(Spliterator<Zamowienie> zamówienia) {
         this.zamówienia = zamówienia;
-    }
-
-    public SumatorZamowienRownolegly(Zamowienie[] zamówienia) {
-        this(zamówienia, 0, zamówienia.length);
     }
 
     @Override
     protected Integer compute() {
-        if (doIlu - odIlu <= 20) {
-            System.out.println("zaczynam - " + odIlu + " - " + doIlu + " (" + Thread.currentThread().getId() + ")");
-            int suma = 0;
-            for (int i = odIlu; i < doIlu; i++) {
-                suma += zamówienia[i].getCena() * zamówienia[i].getIleSztuk();
-            }
-            return suma;
+        if (zamówienia.estimateSize() <= 20) {
+            System.out.println("zaczynam, size=" + zamówienia.estimateSize() + ", wątek=" + Thread.currentThread().getId());
+            int[] suma = {0}; // musi być efektywnie finalne ale i mutowalne
+            while (zamówienia.tryAdvance(z -> suma[0] += z.getCena() * z.getIleSztuk()));
+            return suma[0];
         } else {
-            int środek = odIlu + (doIlu - odIlu) / 2;
-            SumatorZamowienRownolegly podakcja1 = new SumatorZamowienRownolegly(zamówienia, odIlu, środek);
-            SumatorZamowienRownolegly podakcja2 = new SumatorZamowienRownolegly(zamówienia, środek, doIlu);
+            System.out.println("dzielę, mój size=" + zamówienia.estimateSize() + ", wątek=" + Thread.currentThread().getId());
+            Spliterator<Zamowienie> drugaCzęść = zamówienia.trySplit();
+            if (drugaCzęść == null) {
+                throw new RuntimeException("to się nie ma prawa zdarzyć");
+            }
+            Spliterator<Zamowienie> pierwszaCzęść = zamówienia;
+            SumatorZamowienRownolegly podakcja1 = new SumatorZamowienRownolegly(pierwszaCzęść);
+            SumatorZamowienRownolegly podakcja2 = new SumatorZamowienRownolegly(drugaCzęść);
             ForkJoinPool.commonPool().execute(podakcja1);
             ForkJoinPool.commonPool().execute(podakcja2);
             int suma1 = podakcja1.join();

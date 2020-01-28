@@ -6,9 +6,7 @@ import java.util.function.Consumer;
 public class Glowna {
     public static void main(String[] args) {
         WczytywaczZamowien wczytywaczZamowien = new WczytywaczZamowien();
-//        int suma = SumatorZamowien.sumujZamówienia(wczytywaczZamowien);
-        Zamowienie[] zamówienia = wczytywaczZamowien.wczytajZamówienia();
-        int suma = new SumatorZamowienRownolegly(zamówienia).invoke();
+        int suma = new SumatorZamowienRownolegly(wczytywaczZamowien).invoke();
         System.out.println(suma);
     }
 
