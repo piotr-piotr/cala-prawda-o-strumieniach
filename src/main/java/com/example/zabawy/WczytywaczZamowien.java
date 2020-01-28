@@ -12,8 +12,8 @@ public class WczytywaczZamowien implements Spliterator<Zamowienie> {
     private final Zamowienie[] zamówienia;
 
     public WczytywaczZamowien() {
-        zamówienia = new Zamowienie[300];
-        for (int i = 0; i < 300; i++) {
+        zamówienia = new Zamowienie[700]; // jeśli zrobimy za mało zamówień, to strumień nie będzie działał równolegle, nawet jeśli zrobimy mu parallel()
+        for (int i = 0; i < 700; i++) {
             zamówienia[i] = GeneratorLosowychZamowien.dajLosoweZamówienie();
         }
         kursor = 0;
@@ -41,6 +41,7 @@ public class WczytywaczZamowien implements Spliterator<Zamowienie> {
 
     @Override
     public Spliterator<Zamowienie> trySplit() {
+        System.out.println("    robię split, mój rozmiar to " + estimateSize() + ", wątek=" + Thread.currentThread().getId());
         int środek = kursor + (doIlu - kursor) / 2;
         if (środek == doIlu || środek == doIlu) {
             return null;
@@ -57,6 +58,6 @@ public class WczytywaczZamowien implements Spliterator<Zamowienie> {
 
     @Override
     public int characteristics() {
-        throw new UnsupportedOperationException("tu nic nie ma");
+        return SUBSIZED | SIZED | NONNULL;
     }
 }

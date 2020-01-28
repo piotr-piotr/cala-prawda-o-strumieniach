@@ -1,18 +1,15 @@
 package com.example.zabawy;
 
-import java.util.Iterator;
-import java.util.function.Consumer;
+import java.util.Spliterator;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class Glowna {
     public static void main(String[] args) {
-        WczytywaczZamowien wczytywaczZamowien = new WczytywaczZamowien();
-        int suma = new SumatorZamowienRownolegly(wczytywaczZamowien).invoke();
-        System.out.println(suma);
-    }
-
-    private static void forEach(Iterator<Zamowienie> zamówienia, Consumer<Zamowienie> konsumer) {
-        while (zamówienia.hasNext()) {
-            konsumer.accept(zamówienia.next());
-        }
+        Spliterator<Zamowienie> wczytywaczZamowien = new WczytywaczZamowien();
+        Stream<Zamowienie> strumieńZamówień = StreamSupport.stream(wczytywaczZamowien, true);
+//        strumieńZamówień = strumieńZamówień.sequential();
+//        strumieńZamówień = strumieńZamówień.parallel();
+        strumieńZamówień.forEach(z -> System.out.println(z + ", wątek=" + Thread.currentThread().getId()));
     }
 }
