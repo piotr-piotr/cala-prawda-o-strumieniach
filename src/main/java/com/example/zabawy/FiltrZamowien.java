@@ -1,13 +1,16 @@
 package com.example.zabawy;
 
 import java.util.Iterator;
+import java.util.function.Predicate;
 
-public class FiltrWybierajacyMaleZamowienia implements Iterator<Zamowienie> {
+public class FiltrZamowien implements Iterator<Zamowienie> {
     private final Iterator<Zamowienie> zamówienia;
+    private final Predicate<Zamowienie> predykat;
     private Zamowienie wybraneZamówienie;
 
-    public FiltrWybierajacyMaleZamowienia(Iterator<Zamowienie> zamówienia) {
+    public FiltrZamowien(Iterator<Zamowienie> zamówienia, Predicate<Zamowienie> predykat) {
         this.zamówienia = zamówienia;
+        this.predykat = predykat;
         weźKolejnePasująceZamówienie();
     }
 
@@ -15,7 +18,7 @@ public class FiltrWybierajacyMaleZamowienia implements Iterator<Zamowienie> {
         Zamowienie znalezione = null;
         while (zamówienia.hasNext()) {
             Zamowienie z = zamówienia.next();
-            if (z.getIleSztuk() < 6) {
+            if (predykat.test(z)) {
                 znalezione = z;
                 break;
             }
